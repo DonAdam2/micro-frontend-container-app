@@ -8,7 +8,7 @@ import ErrorBoundaryFallback from './js/generic/ErrorBoundaryFallback';
 import LoadingIcon from './js/components/shared/loadingIcon/LoadingIcon';
 import TestComponent from './js/containers/TestComponent';
 //remote micro frontend
-import Images from 'images_remote/App';
+import InnerApp from 'inner_app/App';
 
 const App = () => (
 	<Suspense
@@ -26,7 +26,7 @@ const App = () => (
 			}}
 		>
 			<TestComponent />
-			<Images mango="mango" />
+			<InnerApp />
 		</ErrorBoundary>
 	</Suspense>
 );
