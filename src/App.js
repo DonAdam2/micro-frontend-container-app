@@ -9,6 +9,8 @@ import ErrorBoundaryFallback from './js/generic/ErrorBoundaryFallback';
 import { routes } from './js/routing/routingConstants/RoutesConfig';
 //pages
 import NotFoundPage from './js/containers/pages/NotFoundPage';
+//containers
+import AppHeader from './js/containers/AppHeader';
 
 const App = () => (
 	<ErrorBoundary
@@ -18,6 +20,7 @@ const App = () => (
 			console.log('Try again clicked');
 		}}
 	>
+		<AppHeader />
 		<Switch>
 			{routes.map((el, i) => (
 				<Route path={el.path} render={() => <el.Component />} key={i} exact={el.exact} />

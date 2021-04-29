@@ -8,10 +8,12 @@ export const routes = [
 	{
 		path: getHomePageUrl(),
 		Component: HomePage,
+		label: 'Home',
 		exact: true,
 	},
 	{
 		path: getCarouselPageUrl(),
 		Component: CarouselPage,
+		label: 'Carousel',
 	},
 ];
