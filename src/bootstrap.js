@@ -13,7 +13,7 @@ import App from './App';
 //styles
 import './scss/global.scss';
 
-const store = configureStore();
+export const store = configureStore();
 
 ReactDOM.render(
 	<Provider store={store}>

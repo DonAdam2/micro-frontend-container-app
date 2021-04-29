@@ -4,6 +4,8 @@ import { hot } from 'react-hot-loader/root';
 import { ErrorBoundary } from 'react-error-boundary';
 //error boundary fallback
 import ErrorBoundaryFallback from './js/generic/ErrorBoundaryFallback';
+//store
+import { store } from './bootstrap';
 //components
 import LoadingIcon from './js/components/shared/loadingIcon/LoadingIcon';
 import TestComponent from './js/containers/TestComponent';
@@ -26,7 +28,7 @@ const App = () => (
 			}}
 		>
 			<TestComponent />
-			<RemoteApp />
+			<RemoteApp store={store} />
 		</ErrorBoundary>
 	</Suspense>
 );

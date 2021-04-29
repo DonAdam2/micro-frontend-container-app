@@ -1,4 +1,4 @@
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware, combineReducers } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 //root reducer
 import rootReducer from './rootReducer';
@@ -17,7 +17,7 @@ if (isDevelopment) {
 const configureStore = () => {
 	const apply = applyMiddleware(thunkMiddleware, ...middlewares),
 		store = createStore(
-			rootReducer,
+			createReducer(),
 			/* preloadedState, */
 			//use redux dev tool in development only
 			isDevelopment ? composeWithDevTools(apply) : apply
@@ -28,6 +28,22 @@ const configureStore = () => {
 		module.hot.accept('./rootReducer', () => store.replaceReducer(rootReducer));
 	}
 
+	//used to inject reducers async
+	store.asyncReducers = {};
+
+	store.injectReducer = (key, asyncReducer) => {
+		store.asyncReducers[key] = asyncReducer;
+		store.replaceReducer(createReducer(store.asyncReducers));
+	};
+
 	return store;
 };
+
+function createReducer(asyncReducers) {
+	return combineReducers({
+		...rootReducer,
+		...asyncReducers,
+	});
+}
+
 export default configureStore;
