@@ -158,7 +158,7 @@ module.exports = (env, options) => {
 			new ModuleFederationPlugin({
 				name: 'app_container',
 				remotes: {
-					images_remote: 'images_remote@http://localhost:3006/remoteEntry.js',
+					images_remote: 'images_remote@http://localhost:3001/remoteEntry.js',
 				},
 				shared: ['react', 'react-dom'],
 			}),
