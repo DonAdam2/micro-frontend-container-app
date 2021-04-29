@@ -7,8 +7,8 @@ import ErrorBoundaryFallback from './js/generic/ErrorBoundaryFallback';
 //components
 import LoadingIcon from './js/components/shared/loadingIcon/LoadingIcon';
 import TestComponent from './js/containers/TestComponent';
-//remote micro frontend
-import InnerApp from 'inner_app/App';
+//import remote micro frontend lazily
+const RemoteApp = React.lazy(() => import('inner_app/App'));
 
 const App = () => (
 	<Suspense
@@ -26,7 +26,7 @@ const App = () => (
 			}}
 		>
 			<TestComponent />
-			<InnerApp />
+			<RemoteApp />
 		</ErrorBoundary>
 	</Suspense>
 );
