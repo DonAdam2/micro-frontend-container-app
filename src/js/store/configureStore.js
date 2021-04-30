@@ -1,7 +1,7 @@
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 //root reducer
-import rootReducer from './rootReducer';
+import reducerSlices from './reducerSlices';
 //middle wares
 import thunkMiddleware from 'redux-thunk';
 
@@ -25,14 +25,15 @@ const configureStore = () => {
 
 	// enable hot loading in development mode only
 	if (isDevelopment && module.hot) {
-		module.hot.accept('./rootReducer', () => store.replaceReducer(rootReducer));
+		module.hot.accept('./reducerSlices', () => store.replaceReducer(createReducer()));
 	}
 
-	//used to inject reducers async
+	//used to inject remote reducers
 	store.asyncReducers = {};
 
-	store.injectReducer = (key, asyncReducer) => {
-		store.asyncReducers[key] = asyncReducer;
+	store.injectReducer = (asyncReducerSlices) => {
+		Object.entries(asyncReducerSlices).forEach((el) => (store.asyncReducers[el[0]] = el[1]));
+
 		store.replaceReducer(createReducer(store.asyncReducers));
 	};
 
@@ -41,7 +42,7 @@ const configureStore = () => {
 
 function createReducer(asyncReducers) {
 	return combineReducers({
-		...rootReducer,
+		...reducerSlices,
 		...asyncReducers,
 	});
 }

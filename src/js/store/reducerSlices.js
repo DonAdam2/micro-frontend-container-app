@@ -1,7 +1,7 @@
 import app from './app/reducers/AppReducer';
 
-const rootReducer = {
+const reducerSlices = {
 	app,
 };
 
-export default rootReducer;
+export default reducerSlices;
