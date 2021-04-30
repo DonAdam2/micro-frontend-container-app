@@ -10,25 +10,26 @@ const TestComponent = () => {
 		testAction = useSelector((state) => getTestAction({ state }));
 
 	return (
-		<div
-			className="container"
-			style={{
-				textAlign: 'center',
-				border: '4px dashed green',
-				paddingBottom: '1rem',
-				margin: '4rem auto',
-			}}
-		>
-			<h3>container app</h3>
-			<p>
-				Current container environment API is <strong>{process.env.API_URL}</strong>
-			</p>
-			<p>
-				Testing the container store <strong>{testAction}</strong>
-			</p>
-			<button className="std-btn primary" onClick={() => dispatch(setTestAction())}>
-				Change container text hi
-			</button>
+		<div style={{ padding: '4rem 0' }}>
+			<div
+				className="container"
+				style={{
+					textAlign: 'center',
+					border: '4px dashed green',
+					paddingBottom: '1rem',
+				}}
+			>
+				<h3>container app</h3>
+				<p>
+					Current container environment API is <strong>{process.env.API_URL}</strong>
+				</p>
+				<p>
+					Testing the container store <strong>{testAction}</strong>
+				</p>
+				<button className="std-btn primary" onClick={() => dispatch(setTestAction())}>
+					Change container text hi
+				</button>
+			</div>
 		</div>
 	);
 };
