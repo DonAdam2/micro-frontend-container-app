@@ -15,6 +15,8 @@ const fs = require('fs'),
 		port,
 		devServer,
 		jsSubDirectory,
+		remoteDevUrl,
+		remoteProdUrl,
 		metaInfo: { title, description, url, keywords, metaImageName },
 	} = require('./constants'),
 	PATHS = require('./paths'),
@@ -155,7 +157,7 @@ module.exports = (env, options) => {
 			new ModuleFederationPlugin({
 				name: 'app_container',
 				remotes: {
-					inner_app: 'inner_app@http://localhost:3001/remoteEntry.js',
+					inner_app: `inner_app@${isDevelopment ? remoteDevUrl : remoteProdUrl}/remoteEntry.js`,
 				},
 				shared: ['react', 'react-dom'],
 			}),

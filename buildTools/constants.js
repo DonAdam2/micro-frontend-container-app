@@ -6,6 +6,8 @@ module.exports = {
 	environmentsDirectory: 'environments',
 	jsSubDirectory: 'js/',
 	cssSubDirectory: 'css/',
+	remoteDevUrl: 'http://localhost:3001',
+	remoteProdUrl: 'http://localhost:8081',
 	metaInfo: {
 		title: 'Container app',
 		description: 'description',
