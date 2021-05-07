@@ -27,7 +27,7 @@ const TestComponent = () => {
 					Testing the container store <strong>{testAction}</strong>
 				</p>
 				<button className="std-btn primary" onClick={() => dispatch(setTestAction())}>
-					Change container text hi
+					Change container text
 				</button>
 			</div>
 		</div>

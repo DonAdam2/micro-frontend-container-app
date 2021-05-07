@@ -4,9 +4,14 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import reducerSlices from './reducerSlices';
 //middle wares
 import thunkMiddleware from 'redux-thunk';
+//https://www.npmjs.com/package/redux-dynamic-middlewares
+//use the following package if you need to inject plugins from the inner app
+//import dynamicMiddlewares from 'redux-dynamic-middlewares'
 
 const isDevelopment = process.env.NODE_ENV === 'development',
-	middlewares = [];
+	middlewares = [
+		//dynamicMiddlewares
+	];
 
 // log redux data in development mode only
 if (isDevelopment) {
