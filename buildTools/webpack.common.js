@@ -8,7 +8,6 @@ const fs = require('fs'),
 	MiniCssExtractPlugin = require('mini-css-extract-plugin'),
 	autoprefixer = require('autoprefixer'),
 	EsLintPlugin = require('eslint-webpack-plugin'),
-	{ CleanWebpackPlugin } = require('clean-webpack-plugin'),
 	ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin'),
 	//constants
 	{
@@ -72,7 +71,7 @@ module.exports = (env, options) => {
 						loader: 'file-loader',
 						options: {
 							name: '[name].[contenthash].[ext]',
-							outputPath: 'assets/fonts',
+							outputPath: `${isDevelopment ? '' : '/'}assets/fonts`,
 							publicPath: isDevelopment ? fullDevServerUrl + 'assets/fonts' : '',
 						},
 					},
@@ -148,8 +147,6 @@ module.exports = (env, options) => {
 				},
 				shared: ['react', 'react-dom'],
 			}),
-			// Removes/cleans build folders and unused assets when rebuilding
-			new CleanWebpackPlugin(),
 			new EsLintPlugin({
 				extensions: ['.js', '.jsx'],
 			}),
