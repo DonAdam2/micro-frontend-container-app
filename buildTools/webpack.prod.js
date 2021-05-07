@@ -1,15 +1,12 @@
 // the following 2 lines is to merge common webpack configurations with this file
 const { merge } = require('webpack-merge'),
 	common = require('./webpack.common.js'),
-	glob = require('glob'),
 	//plugins
 	MiniCssExtractPlugin = require('mini-css-extract-plugin'),
-	PurgeCSSPlugin = require('purgecss-webpack-plugin'),
 	CssMinimizerPlugin = require('css-minimizer-webpack-plugin'),
 	TerserJSPlugin = require('terser-webpack-plugin'),
 	//constants
-	{ cssSubDirectory } = require('./constants'),
-	PATHS = require('./paths');
+	{ cssSubDirectory } = require('./constants');
 
 module.exports = (env, options) => {
 	return merge(common(env, options), {
@@ -82,10 +79,6 @@ module.exports = (env, options) => {
 				filename: cssSubDirectory + '[name].[contenthash:8].css',
 				// used for the lazy loaded component
 				chunkFilename: cssSubDirectory + '[id].[contenthash:8].css',
-			}),
-			// remove un-used styles
-			new PurgeCSSPlugin({
-				paths: glob.sync(`${PATHS.src}/**/*`, { nodir: true }),
 			}),
 		],
 	});
