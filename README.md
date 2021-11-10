@@ -11,7 +11,7 @@
     2- Pass ***ModuleFederationPlugin*** to the ***plugins*** array:<br>
     `plugins: [
                 new ModuleFederationPlugin({`<br><br>
-    3- Specify the name of the host app in ***ModuleFederationPlugin***:<br>
+    3- Specify the name of the current app in ***ModuleFederationPlugin***:<br>
     `new ModuleFederationPlugin({
         name: 'app_container',`<br><br>
     4- Add the link of the ***remote module*** in `remotes object` of the ***ModuleFederationPlugin***, example:<br>
