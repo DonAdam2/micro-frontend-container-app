@@ -9,7 +9,8 @@ const path = require('path'),
 	MiniCssExtractPlugin = require('mini-css-extract-plugin'),
 	autoprefixer = require('autoprefixer'),
 	EsLintPlugin = require('eslint-webpack-plugin'),
-	ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin'),
+	{ ModuleFederationPlugin } = require('webpack').container,
+	ExternalTemplateRemotesPlugin = require('external-remotes-plugin'),
 	//constants
 	{
 		port,
@@ -145,6 +146,8 @@ module.exports = (env, options) => {
 				},
 				shared: ['react', 'react-dom'],
 			}),
+			//used to make sure that remote modules are loaded before the main bundle
+			new ExternalTemplateRemotesPlugin(),
 			new EsLintPlugin({
 				extensions: ['.js', '.jsx'],
 			}),
