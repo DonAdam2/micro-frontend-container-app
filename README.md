@@ -7,6 +7,20 @@ of the ***module federation plugin*** in **/buildTools/webpack.common.js**
 
 **_Note:_** Hot reloading is not working well with ***module federation plugin***.
 
+## How to import a remote app and use it:
+- Open **webpack.common.js** file.
+- Add the link of the remote app in `remotes object` of the ***ModuleFederationPlugin***, example:
+`inner_app: inner_app@${isDevelopment ? remoteDevUrl : remoteProdUrl}/remoteEntry.js,`
+- Import the remote component lazily in the required place, example:
+`const RemoteApp = lazy(() => import('inner_app/App'));`
+- Use it:
+`<RemoteApp
+ 	store={store}
+ />`
+
+**_Note:_** If you don't want to inject the store of the remote app as a slice of the container app store => 
+you don't need to pass the container store to the remote app.
+
 ## Available Scripts
 
 In the project directory, you can run:
