@@ -2,8 +2,6 @@
 
 - Uses ***module federation plugin*** from webpack to inject ***remote modules***.
 
-**_Note:_** Hot reloading is not working well with ***module federation plugin***.
-
 ## How to import a ***remote module*** and use it:
 - Open **webpack.common.js** file.<br>
     1- Import ***ModuleFederationPlugin***:<br>
