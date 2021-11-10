@@ -8,18 +8,38 @@ of ***module federation plugin*** in **/buildTools/webpack.common.js**
 **_Note:_** Hot reloading is not working well with ***module federation plugin***.
 
 ## How to import a ***remote module*** and use it:
-- Open **webpack.common.js** file.
-- Add the link of the ***remote module*** in `remotes object` of the ***ModuleFederationPlugin***, example:
-`inner_app: inner_app@${isDevelopment ? remoteDevUrl : remoteProdUrl}/remoteEntry.js,`
-- Import the ***remote module*** lazily in the required place, example:
+- Open **webpack.common.js** file.<br>
+1- Import ***ModuleFederationPlugin***:<br>
+`ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin')` <br> <br>
+2- Pass ***ModuleFederationPlugin*** to the ***plugins*** array:<br>
+`plugins: [
+ 			new ModuleFederationPlugin({`<br><br>
+3- Specify the name of the host app in ***ModuleFederationPlugin***:<br>
+`new ModuleFederationPlugin({
+ 	name: 'app_container',`<br><br>
+4- Add the link of the ***remote module*** in `remotes object` of the ***ModuleFederationPlugin***, example:<br>
+`new ModuleFederationPlugin({
+    remotes: {
+    inner_app: 'inner_app@${isDevelopment ? remoteDevUrl : remoteProdUrl}/remoteEntry.js',
+    },`<br><br>
+5- Add the shared dependencies in ***ModuleFederationPlugin***:<br>
+`new ModuleFederationPlugin({
+ 	shared: ['react', 'react-dom'],
+ 	}),`<br><br>
+ 	
+- Import the ***remote module*** lazily in the required place, example:<br>
 `const RemoteApp = lazy(() => import('inner_app/App'));`
 - Use it:
 `<RemoteApp
  	store={store}
  />`
 
-**_Note:_** If you don't want to inject the store of the ***remote module*** as a slice of the container app store => 
-you don't need to pass the container store to the ***remote module***.
+**_Notes:_** 
+- If you don't want to inject the store of the ***remote module*** as a slice of the host store => <br> 
+you don't need to pass the host store to the ***remote module***.
+- If you want to inject the store of the ***remote module*** as a slice of the host store => <br> 
+you need to set up the store of the ***remote module*** to have such functionality
+ ***(open the inner-app repository to check the setup)***
 
 ## Available Scripts
 
