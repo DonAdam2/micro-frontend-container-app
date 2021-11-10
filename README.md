@@ -1,9 +1,6 @@
 ## Micro frontend container:
 
 - Uses ***module federation plugin*** from webpack to inject ***remote modules***.
-- You can add as many ***remote modules*** as you like by adding them to the remotes object 
-of ***module federation plugin*** in **/buildTools/webpack.common.js** 
-- **/buildTools/constants** contains the production ***URL*** of the  ***remote module***.
 
 **_Note:_** Hot reloading is not working well with ***module federation plugin***.
 
@@ -23,7 +20,10 @@ of ***module federation plugin*** in **/buildTools/webpack.common.js**
         inner_app: 'inner_app@${isDevelopment ? remoteDevUrl : remoteProdUrl}/remoteEntry.js',
         },`<br><br>
         
-     **_Note:_** You need to use the name of the ***remote module*** that you specified in the ***remote module*** setup.
+     **_Notes:_** 
+     - You must use the name of the ***remote module*** that you specified in the ***remote module*** setup.
+     - You can add as many ***remote modules*** as you like by adding them to the `remotes object` 
+     - **/buildTools/constants** contains ***remoteDevUrl*** and ***remoteProdUrl*** of the  ***remote module***.
         
     5- Add the shared dependencies in ***ModuleFederationPlugin***:<br>
     `new ModuleFederationPlugin({
