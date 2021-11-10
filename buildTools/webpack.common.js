@@ -1,5 +1,6 @@
-//used to check if the given file exists
-const fs = require('fs'),
+const path = require('path'),
+	//used to check if the given file exists
+	fs = require('fs'),
 	//dotenv
 	dotenv = require('dotenv'),
 	//plugins
@@ -16,10 +17,10 @@ const fs = require('fs'),
 		jsSubDirectory,
 		remoteDevUrl,
 		remoteProdUrl,
-		metaInfo: { title, description, url, keywords, metaImageName },
+		metaInfo: { title, description, url, keywords },
 	} = require('./constants'),
 	PATHS = require('./paths'),
-	fullDevServerUrl = devServer + ':' + port + '/';
+	fullDevServerUrl = `${devServer}:${port}`;
 
 module.exports = (env, options) => {
 	// the mode variable is passed in package.json scripts (development, production)
@@ -50,6 +51,11 @@ module.exports = (env, options) => {
 			// used for the lazy loaded component
 			chunkFilename: jsSubDirectory + '[name].[contenthash:8].js',
 			publicPath: 'auto',
+			assetModuleFilename: (pathData) => {
+				//allows us to have the same folder structure of assets as we have it in /src
+				const filepath = path.dirname(pathData.filename).split('/').slice(1).join('/');
+				return `${filepath}/[name].[hash][ext][query]`;
+			},
 		},
 		resolve: {
 			extensions: ['*', '.js', '.jsx'],
@@ -65,17 +71,8 @@ module.exports = (env, options) => {
 					},
 				},
 				{
-					test: /\.(ttf|eot|woff|woff2)$/,
-					exclude: /node_modules/,
-					use: {
-						loader: 'file-loader',
-						options: {
-							name: '[name].[contenthash].[ext]',
-							outputPath: `${isDevelopment ? '' : '/'}assets/fonts`,
-							publicPath: isDevelopment ? fullDevServerUrl + 'assets/fonts' : '',
-						},
-					},
-					type: 'javascript/auto',
+					test: /\.(jpe?g|svg|png|gif|ico|eot|ttf|woff2?)(\?v=\d+\.\d+\.\d+)?$/i,
+					type: 'asset/resource',
 				},
 				{
 					test: /\.s?[ac]ss$/,
@@ -106,7 +103,7 @@ module.exports = (env, options) => {
 									},
 									localIdentName: isDevelopment ? '[name]_[local]' : '[contenthash:base64]',
 									localIdentContext: PATHS.src,
-									localIdentHashPrefix: 'react-boilerplate',
+									localIdentHashSalt: 'react-boilerplate',
 									exportLocalsConvention: 'camelCaseOnly',
 								},*/
 							},
@@ -114,9 +111,11 @@ module.exports = (env, options) => {
 						{
 							loader: 'postcss-loader',
 							options: {
-								ident: 'postcss',
+								postcssOptions: {
+									ident: 'postcss',
+									plugins: [autoprefixer()],
+								},
 								sourceMap: isDevelopment,
-								plugins: [autoprefixer()],
 							},
 						},
 						{
@@ -125,7 +124,6 @@ module.exports = (env, options) => {
 							options: {
 								//needs sourcemaps to resolve urls (images)
 								sourceMap: true,
-								engine: 'rework',
 							},
 						},
 						{
@@ -162,7 +160,6 @@ module.exports = (env, options) => {
 					url: isDevelopment ? fullDevServerUrl : url,
 					'apple-mobile-web-app-capable': 'yes',
 					'mobile-web-app-capable': 'yes',
-					image: `${isDevelopment ? fullDevServerUrl : url}assets/images/${metaImageName}`,
 				},
 			}),
 			new DefinePlugin(envKeys),
