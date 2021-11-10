@@ -1,25 +1,25 @@
 ## Micro frontend container:
 
-- Uses ***module federation plugin*** from webpack to inject the remote app.
-- You can add as many remote apps as you like by adding them to the remotes object 
-of the ***module federation plugin*** in **/buildTools/webpack.common.js** 
-- **/buildTools/constants** contains the production ***URL*** of the remote app.
+- Uses ***module federation plugin*** from webpack to inject ***remote modules***.
+- You can add as many ***remote modules*** as you like by adding them to the remotes object 
+of ***module federation plugin*** in **/buildTools/webpack.common.js** 
+- **/buildTools/constants** contains the production ***URL*** of the  ***remote module***.
 
 **_Note:_** Hot reloading is not working well with ***module federation plugin***.
 
-## How to import a remote app and use it:
+## How to import a ***remote module*** and use it:
 - Open **webpack.common.js** file.
-- Add the link of the remote app in `remotes object` of the ***ModuleFederationPlugin***, example:
+- Add the link of the ***remote module*** in `remotes object` of the ***ModuleFederationPlugin***, example:
 `inner_app: inner_app@${isDevelopment ? remoteDevUrl : remoteProdUrl}/remoteEntry.js,`
-- Import the remote component lazily in the required place, example:
+- Import the ***remote module*** lazily in the required place, example:
 `const RemoteApp = lazy(() => import('inner_app/App'));`
 - Use it:
 `<RemoteApp
  	store={store}
  />`
 
-**_Note:_** If you don't want to inject the store of the remote app as a slice of the container app store => 
-you don't need to pass the container store to the remote app.
+**_Note:_** If you don't want to inject the store of the ***remote module*** as a slice of the container app store => 
+you don't need to pass the container store to the ***remote module***.
 
 ## Available Scripts
 
