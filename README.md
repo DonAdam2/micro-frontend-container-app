@@ -21,7 +21,7 @@
         },`<br><br>
         
      **_Notes:_** 
-     - You must use the name of the ***remote module*** that you specified in the ***remote module*** setup.
+     - You must use the name of the ***remote module*** that you specified in the ***remote module*** webpack setup.
      - You can add as many ***remote modules*** as you like by adding them to the `remotes object` 
      - **/buildTools/constants** contains ***remoteDevUrl*** and ***remoteProdUrl*** of the  ***remote module***.
         
@@ -37,12 +37,61 @@
  	store={store}
  />`
 
-**_Notes:_** 
-- If you don't want to inject the store of the ***remote module*** as a slice of the host store => <br> 
-you don't need to pass the host store to the ***remote module***.
-- If you want to inject the store of the ***remote module*** as a slice of the host store => <br> 
-you need to set up the store of the ***remote module*** to have such functionality
- ***(open the inner-app repository to check the setup)***
+## How to inject the **remote module** store into the current store:
+
+- Install `redux-dynamic-middlewares` package if the **remote module** has middle wares.
+
+- Open `/src/js/store/configureStore.js` file:
+
+    1- Import `dynamicMiddlewares` from `redux-dynamic-middlewares` package:<br>
+        `import dynamicMiddlewares from 'redux-dynamic-middlewares'`
+        
+    2- Pass `dynamicMiddlewares` into `middlewares` array:<br>
+        `const middlewares = [
+                dynamicMiddlewares
+            ];`
+            
+    3- configureStore function:
+    
+    - Add `asyncReducers` object to the store:<br>
+    `store.asyncReducers = {};`
+    
+    - Add `injectReducer` function to the store:<br>
+    `store.injectReducer = (asyncReducerSlices) => {
+        Object.entries(asyncReducerSlices).forEach((el) => (store.asyncReducers[el[0]] = el[1]));
+        store.replaceReducer(createReducer(store.asyncReducers));
+    };`
+    
+    4- `createReducer` function:
+    
+    `function createReducer(asyncReducers) {
+        return combineReducers({
+            ...reducerSlices,
+            ...asyncReducers,
+        });
+    }`
+    
+- Open the component in which you want to use the imported module:
+    
+    1- Import `addMiddleware` from `redux-dynamic-middlewares` package:<br>
+        `import { addMiddleware } from 'redux-dynamic-middlewares';`
+        
+    2- Import current app store:<br>
+        `import { store } from '../../../bootstrap';`
+    
+    3- Import the `remote module` lazily:<br>
+        `const RemoteApp = lazy(() => import('inner_app/App'));`
+    
+    2- Create addMiddleWares function in the component:<br>
+        `const addMiddleWares = (middleWares) => {
+            middleWares.forEach((el) => addMiddleware(el));
+        };`
+        
+    3- Pass `store` and `addMiddleWares` to the `remote module`:<br>
+        `<RemoteApp
+            addMiddleWares={addMiddleWares}
+            store={store}
+        />`
 
 ## Available Scripts
 
