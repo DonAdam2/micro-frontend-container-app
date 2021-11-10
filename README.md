@@ -33,9 +33,7 @@
 - Import the ***remote module*** lazily in the required place, example:<br>
 `const RemoteApp = lazy(() => import('inner_app/App'));`
 - Use it:
-`<RemoteApp
- 	store={store}
- />`
+`<RemoteApp />`
 
 ## How to inject the **remote module** store into the current store:
 
