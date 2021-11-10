@@ -72,7 +72,7 @@ Your app is ready to be deployed!
 
 ### `yarn build:serve`
 
-Serves the app on `http://localhost:8080/` from the `dist` folder to check the production version.
+Serves the app on [http://localhost:8080](http://localhost:8080) from the `dist` folder to check the production version.
 
 **_Note:_** Use this script only if you ran the build script `yarn build`.
 
