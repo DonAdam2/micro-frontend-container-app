@@ -9,23 +9,26 @@ of ***module federation plugin*** in **/buildTools/webpack.common.js**
 
 ## How to import a ***remote module*** and use it:
 - Open **webpack.common.js** file.<br>
-1- Import ***ModuleFederationPlugin***:<br>
-`ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin')` <br> <br>
-2- Pass ***ModuleFederationPlugin*** to the ***plugins*** array:<br>
-`plugins: [
- 			new ModuleFederationPlugin({`<br><br>
-3- Specify the name of the host app in ***ModuleFederationPlugin***:<br>
-`new ModuleFederationPlugin({
- 	name: 'app_container',`<br><br>
-4- Add the link of the ***remote module*** in `remotes object` of the ***ModuleFederationPlugin***, example:<br>
-`new ModuleFederationPlugin({
-    remotes: {
-    inner_app: 'inner_app@${isDevelopment ? remoteDevUrl : remoteProdUrl}/remoteEntry.js',
-    },`<br><br>
-5- Add the shared dependencies in ***ModuleFederationPlugin***:<br>
-`new ModuleFederationPlugin({
- 	shared: ['react', 'react-dom'],
- 	}),`<br><br>
+    1- Import ***ModuleFederationPlugin***:<br>
+    `ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin')` <br> <br>
+    2- Pass ***ModuleFederationPlugin*** to the ***plugins*** array:<br>
+    `plugins: [
+                new ModuleFederationPlugin({`<br><br>
+    3- Specify the name of the host app in ***ModuleFederationPlugin***:<br>
+    `new ModuleFederationPlugin({
+        name: 'app_container',`<br><br>
+    4- Add the link of the ***remote module*** in `remotes object` of the ***ModuleFederationPlugin***, example:<br>
+    `new ModuleFederationPlugin({
+        remotes: {
+        inner_app: 'inner_app@${isDevelopment ? remoteDevUrl : remoteProdUrl}/remoteEntry.js',
+        },`<br><br>
+        
+     **_Note:_** You need to use the name of the ***remote module*** that you specified in the ***remote module*** setup.
+        
+    5- Add the shared dependencies in ***ModuleFederationPlugin***:<br>
+    `new ModuleFederationPlugin({
+        shared: ['react', 'react-dom'],
+        }),`<br><br>
  	
 - Import the ***remote module*** lazily in the required place, example:<br>
 `const RemoteApp = lazy(() => import('inner_app/App'));`
