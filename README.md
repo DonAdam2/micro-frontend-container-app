@@ -2,6 +2,8 @@
 
 - Uses ***module federation plugin*** from webpack to inject ***remote modules***.
 
+**_Note:_** You must start the container app first then inner app in order for the hot reloading to work properly.
+
 ## How to import a ***remote module*** and use it:
 - Open **webpack.common.js** file.<br>
     1- Import ***ModuleFederationPlugin***:<br>
