@@ -19,7 +19,7 @@
   new ModuleFederationPlugin({
   ```
 
-  3- Specify the name of the current app (must be unique) in ***ModuleFederationPlugin***:
+  3- Specify the name of the current app 678 in ***ModuleFederationPlugin***:
 
   ```new ModuleFederationPlugin({
   name: 'app_container',
@@ -86,57 +86,93 @@
 
 - Install `redux-dynamic-middlewares` package if the **remote module** has middle wares.
 
-- Open `/src/js/store/configureStore.js` file:
+- Open `/src/js/store/store.js` file:
 
-    1- Import `dynamicMiddlewares` from `redux-dynamic-middlewares` package:<br>
-        `import dynamicMiddlewares from 'redux-dynamic-middlewares'`
+    1- Import `dynamicMiddlewares` from `redux-dynamic-middlewares` package:
+
+    ```
+    import dynamicMiddlewares from 'redux-dynamic-middlewares'
+    ```
         
-    2- Pass `dynamicMiddlewares` into `middlewares` array:<br>
-        `const middlewares = [
-                dynamicMiddlewares
-            ];`
+    2- Import `configureStore`:
+
+    ```
+    import { configureStore } from '@reduxjs/toolkit';
+    ```
             
-    3- configureStore function:
+    3- Import your redux slices:
     
-    - Add `asyncReducers` object to the store:<br>
-    `store.asyncReducers = {};`
+    ```
+    import { reducerSlices } from './reducerSlices';
+    ```
     
-    - Add `injectReducer` function to the store:<br>
-    `store.injectReducer = (asyncReducerSlices) => {
-        Object.entries(asyncReducerSlices).forEach((el) => (store.asyncReducers[el[0]] = el[1]));
-        store.replaceReducer(createReducer(store.asyncReducers));
-    };`
+    4- Create your redux store and pass to it **dynamicMiddlewares**:
     
-    4- `createReducer` function:
-    
-    `function createReducer(asyncReducers) {
-        return combineReducers({
-            ...reducerSlices,
-            ...asyncReducers,
-        });
-    }`
+    ```
+    export default configureStore({
+      reducer: reducerSlices,
+      devTools: isDevelopment,
+      middleware: (getDefaultMiddleware) => {
+        if (isDevelopment) {
+          const { logger } = require('redux-logger'),
+            middlewares = [logger, dynamicMiddlewares];
+
+          return getDefaultMiddleware().concat(middlewares);
+        }
+
+        return getDefaultMiddleware();
+      },
+    });
+    ```
     
 - Open the component in which you want to use the imported module:
     
-    1- Import `addMiddleware` from `redux-dynamic-middlewares` package:<br>
-        `import { addMiddleware } from 'redux-dynamic-middlewares';`
+    1- Import `addMiddleware` from `redux-dynamic-middlewares` package:
+
+    ```
+    import { addMiddleware } from 'redux-dynamic-middlewares';
+    ```
         
-    2- Import current app store:<br>
-        `import { store } from '../../../bootstrap';`
+    2- Import current app store:
+
+   ```
+    import { store } from '../../../bootstrap';
+   ```
     
-    3- Import the `remote module` lazily:<br>
-        `const RemoteApp = lazy(() => import('inner_app/App'));`
+    3- Import the `remote module` lazily:
+
+    ```
+    const RemoteApp = lazy(() => import('inner_app/App'));
+    ```
     
-    2- Create addMiddleWares function in the component:<br>
-        `const addMiddleWares = (middleWares) => {
-            middleWares.forEach((el) => addMiddleware(el));
-        };`
+    2- Create **injectMiddleWares** function in the component:
+
+    ```
+    const injectMiddleWares = (middleWares) => {
+      middleWares.forEach((el) => addMiddleware(el));
+    };
+    ```
+
+    3- Create **injectSlices** function in the component:
+
+    ```
+    const injectSlices = (asyncReducerSlices) => {
+      let asyncReducers = {};
+      Object.entries(asyncReducerSlices).forEach((el) => (asyncReducers[el[0]] = el[1]));
+
+      store.replaceReducer(createReducer(asyncReducers));
+    };
+    ```
         
-    3- Pass `store` and `addMiddleWares` to the `remote module`:<br>
-        `<RemoteApp
-            addMiddleWares={addMiddleWares}
-            store={store}
-        />`
+    4- Pass `store`, `injectSlices` and `injectMiddleWares` to the `remote module`:
+
+    ```
+    <RemoteApp
+      injectMiddleWares={injectMiddleWares}
+      store={store}
+      injectSlices={injectSlices}
+    />
+    ```
 
 ## Available Scripts
 

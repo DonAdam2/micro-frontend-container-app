@@ -1,5 +1,5 @@
 import dynamicMiddlewares from 'redux-dynamic-middlewares';
-import { configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 //root reducer
 import { reducerSlices } from './reducerSlices';
 
@@ -19,3 +19,10 @@ export default configureStore({
     return getDefaultMiddleware();
   },
 });
+
+//used to merge dynamic reducer slices into static reducer slices
+export const createReducer = (asyncReducers) =>
+  combineReducers({
+    ...reducerSlices,
+    ...asyncReducers,
+  });
