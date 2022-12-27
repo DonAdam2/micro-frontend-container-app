@@ -5,7 +5,7 @@ import { addMiddleware } from 'redux-dynamic-middlewares';
 //store
 import store from '@/js/store/store';
 //redux slices
-import { rootReducer } from '@/js/store/rootReducer';
+import { reducerSlices } from '@/js/store/reducerSlices';
 //error boundary fallback UI
 import RemoteEntryErrorBoundaryFallback from '@/js/generic/RemoteEntryErrorBoundaryFallback';
 //components
@@ -16,17 +16,17 @@ const RemoteApp = lazy(() => import('inner_app/App'));
 
 function createReducer(asyncReducers) {
   return combineReducers({
-    ...rootReducer,
+    ...reducerSlices,
     ...asyncReducers,
   });
 }
 
 const CarouselPage = () => {
-  const addMiddleWares = (middleWares) => {
+  const injectMiddleWares = (middleWares) => {
     middleWares.forEach((el) => addMiddleware(el));
   };
 
-  const injectReducer = (asyncReducerSlices) => {
+  const injectSlices = (asyncReducerSlices) => {
     let asyncReducers = {};
     Object.entries(asyncReducerSlices).forEach((el) => (asyncReducers[el[0]] = el[1]));
 
@@ -48,7 +48,11 @@ const CarouselPage = () => {
           </div>
         }
       >
-        <RemoteApp addMiddleWares={addMiddleWares} store={store} injectReducer={injectReducer} />
+        <RemoteApp
+          injectMiddleWares={injectMiddleWares}
+          store={store}
+          injectSlices={injectSlices}
+        />
       </Suspense>
     </ErrorBoundary>
   );
