@@ -156,6 +156,17 @@
       },
     });
     ```
+
+    5- Add **createReducer** function:
+
+    ```
+    //used to merge dynamic reducer slices into static reducer slices
+    export const createReducer = (asyncReducers) =>
+    combineReducers({
+      ...reducerSlices,
+      ...asyncReducers,
+    });
+    ```
     
 - Open the component in which you want to use the imported module:
     
@@ -165,10 +176,10 @@
     import { addMiddleware } from 'redux-dynamic-middlewares';
     ```
         
-    2- Import current app store:
+    2- Import current app **store** and **createReducer** function:
 
    ```
-    import { store } from '../../../bootstrap';
+    import store, { createReducer } from '@/js/store/store';
    ```
     
     3- Import the `remote module` lazily:
