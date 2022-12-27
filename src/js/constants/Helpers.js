@@ -1,6 +1,4 @@
-export const updateObject = (oldObject, UpdatedValues) => {
-	return {
-		...oldObject,
-		...UpdatedValues,
-	};
-};
+export const updateObject = (oldObject, UpdatedValues) => ({
+  ...oldObject,
+  ...UpdatedValues,
+});

@@ -1,6 +1,5 @@
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
-import { hot } from 'react-hot-loader/root';
+import { Route, Routes } from 'react-router-dom';
 //error boundary
 import { ErrorBoundary } from 'react-error-boundary';
 //error boundary fallback
@@ -13,21 +12,21 @@ import NotFoundPage from './js/containers/pages/NotFoundPage';
 import AppHeader from './js/containers/AppHeader';
 
 const App = () => (
-	<ErrorBoundary
-		FallbackComponent={ErrorBoundaryFallback}
-		onReset={() => {
-			//Reset the state of your app so the error doesn't happen again
-			console.log('Try again clicked');
-		}}
-	>
-		<AppHeader />
-		<Switch>
-			{routes.map((el, i) => (
-				<Route path={el.path} render={() => <el.Component />} key={i} exact={el.exact} />
-			))}
-			<Route path="*" render={() => <NotFoundPage />} />
-		</Switch>
-	</ErrorBoundary>
+  <ErrorBoundary
+    FallbackComponent={ErrorBoundaryFallback}
+    onReset={() => {
+      //Reset the state of your app so the error doesn't happen again
+      console.log('Try again clicked');
+    }}
+  >
+    <AppHeader />
+    <Routes>
+      {routes.map((route, routeIndex) => (
+        <Route key={routeIndex} path={route.path} element={route.element} />
+      ))}
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  </ErrorBoundary>
 );
 
-export default hot(App);
+export default App;

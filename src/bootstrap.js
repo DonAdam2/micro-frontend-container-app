@@ -1,27 +1,24 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { Router } from 'react-router-dom';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 //import meta image
-import './assets/images/metaImage.jpg';
+import '@/public/assets/images/metaImage.jpg';
 // required for babel polyfills
 import 'regenerator-runtime/runtime';
 //store configuration
-import configureStore from './js/store/configureStore';
+import store from '@/js/store/store';
 //root component
 import App from './App';
 //styles
 import './scss/global.scss';
-//constants
-import { history } from './js/constants/AppConstants';
 
-export const store = configureStore();
+const container = document.getElementById('root'),
+  root = createRoot(container);
 
-ReactDOM.render(
-	<Provider store={store}>
-		<Router history={history}>
-			<App />
-		</Router>
-	</Provider>,
-	document.getElementById('root')
+root.render(
+  <Provider store={store}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </Provider>
 );
