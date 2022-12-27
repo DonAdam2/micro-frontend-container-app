@@ -1,11 +1,43 @@
-## Micro frontend container:
+# Table of Contents:
+- [Overview](#micro-frontend-container)
+- [Prerequisites](#prerequisites)
+- [Installing & getting started](#installing--getting-started)
+- [How to import a remote module and use it](#how-to-import-a-remote-module-and-use-it)
+- [How to inject the remote module store into the current store](#how-to-inject-the-remote-module-store-into-the-current-store)
+- [Available scripts](#available-scripts)
+
+## Micro frontend container
 
 - Uses ***module federation plugin*** from webpack to inject ***remote modules***.
 - This app is the host of [Micro frontend inner app](https://github.com/DonAdam2/micro-frontend-inner-app)
 
 **_Note:_** This app uses live reloading for local development.
 
-## How to import a ***remote module*** and use it:
+## Prerequisites
+
+- nodeJS > 14.X.X or Docker
+
+## Installing / Getting Started
+
+### Development (locally):
+
+- Clone repo => `git clone git@github.com:react-custom-projects/webpack-react-boilerplate.git`
+- Navigate to project directory `cd webpack-react-boilerplate`
+- Install dependencies => `yarn install`
+- Start the development server => `yarn start`
+
+### Development (using Docker):
+
+- Clone repo => `git clone git@github.com:react-custom-projects/webpack-react-boilerplate.git`
+- Navigate to project directory `cd webpack-react-boilerplate`
+- Install dependencies (required for prettier) => `yarn install`
+- Start the development server => `docker-compose up web-dev`
+
+## Docker for production (_basic setup_) (modify it to your needs):
+- Update the **_production_** section of the **_Dockerfile_** to meet your needs
+- Run the following command to build your image => `docker-compose up web-prod`
+
+## How to import a ***remote module*** and use it
 - Open **webpack.common.js** file.<br>
   1- Import ***ModuleFederationPlugin***:
 
@@ -82,7 +114,7 @@
     </ErrorBoundary>
   ```
 
-## How to inject the **remote module** store into the current store:
+## How to inject the **remote module** store into the current store
 
 - Install `redux-dynamic-middlewares` package if the **remote module** has middle wares.
 
