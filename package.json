@@ -6,7 +6,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/react-custom-projects/webpack-react-boilerplate"
+    "url": "https://github.com/DonAdam2/micro-frontend-container-app"
   },
   "description": "Container app of micro frontend",
   "main": "index.js",
