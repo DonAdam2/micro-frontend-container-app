@@ -1,39 +1,79 @@
 ## Micro frontend container:
 
 - Uses ***module federation plugin*** from webpack to inject ***remote modules***.
+- This app is the host of [Micro frontend inner app](https://github.com/DonAdam2/micro-frontend-inner-app)
 
-**_Note:_** You must start the container app first then inner app in order for the hot reloading to work properly.
+**_Note:_** This app uses live reloading for local development.
 
 ## How to import a ***remote module*** and use it:
 - Open **webpack.common.js** file.<br>
-    1- Import ***ModuleFederationPlugin***:<br>
-    `ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin')` <br> <br>
-    2- Pass ***ModuleFederationPlugin*** to the ***plugins*** array:<br>
-    `plugins: [
-                new ModuleFederationPlugin({`<br><br>
-    3- Specify the name of the current app in ***ModuleFederationPlugin***:<br>
-    `new ModuleFederationPlugin({
-        name: 'app_container',`<br><br>
-    4- Add the link of the ***remote module*** in `remotes object` of the ***ModuleFederationPlugin***, example:<br>
-    `new ModuleFederationPlugin({
-        remotes: {
-        inner_app: 'inner_app@${isDevelopment ? remoteDevUrl : remoteProdUrl}/remoteEntry.js',
-        },`<br><br>
-        
-     **_Notes:_** 
-     - You must use the name of the ***remote module*** that you specified in the ***remote module*** webpack setup.
-     - You can add as many ***remote modules*** as you like by adding them to the `remotes object` 
-     - **/buildTools/constants** contains ***remoteDevUrl*** and ***remoteProdUrl*** of the  ***remote module***.
-        
-    5- Add the shared dependencies in ***ModuleFederationPlugin***:<br>
-    `new ModuleFederationPlugin({
-        shared: ['react', 'react-dom'],
-        }),`<br><br>
- 	
-- Import the ***remote module*** lazily in the required place, example:<br>
-`const RemoteApp = lazy(() => import('inner_app/App'));`
-- Use it:
-`<RemoteApp />`
+  1- Import ***ModuleFederationPlugin***:
+
+  ```
+  const { ModuleFederationPlugin } = require('webpack').container
+  ```
+
+  2- Pass ***ModuleFederationPlugin*** to the ***plugins*** array:
+
+  ```plugins: [
+  new ModuleFederationPlugin({
+  ```
+
+  3- Specify the name of the current app (must be unique) in ***ModuleFederationPlugin***:
+
+  ```new ModuleFederationPlugin({
+  name: 'app_container',
+  ```
+
+  4- Add the link of the ***remote module*** in `remotes object` of the ***ModuleFederationPlugin***, example:
+
+  ```
+  new ModuleFederationPlugin({
+    remotes: {
+      inner_app: `inner_app@${isDevelopment ? remoteDevUrl : remoteProdUrl}/remoteEntry.js`,
+    },
+  ```
+
+  **_Notes:_**
+    - You must use the name of the ***remote module*** that you specified in the ***remote module*** webpack setup.
+    - You can add as many ***remote modules*** as you like by adding them to the `remotes object`
+    - **/buildTools/constants** contains ***remoteDevUrl*** and ***remoteProdUrl*** of the  ***remote module***.
+
+  5- Add the shared dependencies in ***ModuleFederationPlugin***:
+
+  ```
+  new ModuleFederationPlugin({
+    shared: ['react', 'react-dom'],
+  }),
+  ```
+
+- Import the ***remote module*** lazily in the required place, example:
+
+  ```
+  const RemoteApp = lazy(() => import('inner_app/App'));
+  ```
+
+- Use it inside ErrorBoundary component:
+
+  ```
+  <ErrorBoundary
+      FallbackComponent={RemoteEntryErrorBoundaryFallback}
+      onReset={() => {
+        //Reset the state of your app so the error doesn't happen again
+        console.log('Try again clicked');
+      }}
+    >
+      <Suspense
+        fallback={
+          <div className="loader-wrapper">
+            <LoadingIcon />
+          </div>
+        }
+      >
+        <RemoteApp />
+      </Suspense>
+    </ErrorBoundary>
+  ```
 
 ## How to inject the **remote module** store into the current store:
 
