@@ -8,4 +8,8 @@
   &.active {
     color: orange;
   }
+
+  &:not(:last-child) {
+    padding-inline-end: 10px;
+  }
 }
