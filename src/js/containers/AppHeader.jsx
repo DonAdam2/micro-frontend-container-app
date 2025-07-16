@@ -1,4 +1,3 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
 //routes
 import { routes } from '../routing/routingConstants/RoutesConfig';

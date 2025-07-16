@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 //use the following package to inject middle wares from the inner app
 import { addMiddleware } from 'redux-dynamic-middlewares';
