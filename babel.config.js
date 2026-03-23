@@ -26,6 +26,6 @@ module.exports = (api) => {
       ],
       ['@babel/preset-react', { runtime: hasJsxRuntime ? 'automatic' : 'classic' }],
     ],
-    plugins: ['@babel/plugin-transform-runtime', '@babel/plugin-syntax-dynamic-import'],
+    plugins: ['@babel/plugin-transform-runtime'],
   };
 };
