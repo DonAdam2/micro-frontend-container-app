@@ -22,15 +22,15 @@
 
 ### Development (locally):
 
-- Clone repo => `git clone git@github.com:react-custom-projects/webpack-react-boilerplate.git`
-- Navigate to project directory `cd webpack-react-boilerplate`
+- Clone repo => `git clone git@github.com:DonAdam2/micro-frontend-container-app.git`
+- Navigate to project directory `cd micro-frontend-container-app`
 - Install dependencies => `yarn install`
 - Start the development server => `yarn start`
 
 ### Development (using Docker):
 
-- Clone repo => `git clone git@github.com:react-custom-projects/webpack-react-boilerplate.git`
-- Navigate to project directory `cd webpack-react-boilerplate`
+- Clone repo => `git clone git@github.com:DonAdam2/micro-frontend-container-app.git`
+- Navigate to project directory `cd micro-frontend-container-app`
 - Install dependencies (required for prettier) => `yarn install`
 - Start the development server => `docker-compose up web-dev`
 
@@ -142,7 +142,8 @@ remotes: {
           return getDefaultMiddleware().concat(middlewares);
         }
 
-        return getDefaultMiddleware();
+        //dynamicMiddlewares is required in production as well to run the middlewares injected by the remote apps
+        return getDefaultMiddleware().concat(dynamicMiddlewares);
       },
     });
     ```
@@ -217,7 +218,7 @@ In the project directory, you can run:
 Runs the app in the development mode.<br>
 It will open [http://localhost:3000](http://localhost:3000) automatically in the browser to see your app.
 
-All changes will be injected automatically without reloading the page.<br>
+The page will reload automatically when you make changes (live reloading).<br>
 
 You will see in the console the following:
 

@@ -16,7 +16,8 @@ export default configureStore({
       return getDefaultMiddleware().concat(middlewares);
     }
 
-    return getDefaultMiddleware();
+    //dynamicMiddlewares is required in production as well to run the middlewares injected by the remote apps
+    return getDefaultMiddleware().concat(dynamicMiddlewares);
   },
 });
 
