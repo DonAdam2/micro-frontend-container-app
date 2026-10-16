@@ -60,6 +60,8 @@ import RemoteComponent from '@/js/components/shared/remoteComponent/RemoteCompon
 **_Notes:_**
 - `remote` format is `remote_app_name/ExposedModule`.
 - Any other prop passed to `RemoteComponent` is passed to the remote module, e.g. `<RemoteComponent remote="inner_app/App" store={store} />`.
+- Each remote module is loaded only once, it is not loaded again when `RemoteComponent` is mounted again (e.g. when switching routes), so its state is kept.
+- If a remote module fails to load, the fallback UI with a **Try again** button is shown, it is loaded again when clicking **Try again** or when `RemoteComponent` is mounted again.
 
 ## How to add a new remote app
 
@@ -110,28 +112,28 @@ remotes: {
 
 - Open `/src/js/store/store.js` file:
 
-    1- Import `dynamicMiddlewares` from `redux-dynamic-middlewares` package:
+    1- Import `dynamicMiddlewares` and `addMiddleware` from `redux-dynamic-middlewares` package:
 
     ```
-    import dynamicMiddlewares from 'redux-dynamic-middlewares'
+    import dynamicMiddlewares, { addMiddleware } from 'redux-dynamic-middlewares';
     ```
-        
-    2- Import `configureStore`:
+
+    2- Import `configureStore` and `combineReducers`:
 
     ```
-    import { configureStore } from '@reduxjs/toolkit';
+    import { combineReducers, configureStore } from '@reduxjs/toolkit';
     ```
-            
+
     3- Import your redux slices:
-    
+
     ```
     import { reducerSlices } from './reducerSlices';
     ```
-    
-    4- Create your redux store and pass to it **dynamicMiddlewares**:
-    
+
+    4- Create your redux store and pass to it **dynamicMiddlewares** (in development and production):
+
     ```
-    export default configureStore({
+    const store = configureStore({
       reducer: reducerSlices,
       devTools: isDevelopment,
       middleware: (getDefaultMiddleware) => {
@@ -146,6 +148,8 @@ remotes: {
         return getDefaultMiddleware().concat(dynamicMiddlewares);
       },
     });
+
+    export default store;
     ```
 
     5- Add **createReducer** function:
@@ -153,52 +157,58 @@ remotes: {
     ```
     //used to merge dynamic reducer slices into static reducer slices
     export const createReducer = (asyncReducers) =>
-    combineReducers({
-      ...reducerSlices,
-      ...asyncReducers,
-    });
+      combineReducers({
+        ...reducerSlices,
+        ...asyncReducers,
+      });
     ```
-    
-- Open the component in which you want to use the imported module:
-    
-    1- Import `addMiddleware` from `redux-dynamic-middlewares` package:
+
+    6- Add **injectSlices** and **injectMiddleWares** functions (they are passed to the remote apps):
 
     ```
-    import { addMiddleware } from 'redux-dynamic-middlewares';
-    ```
-        
-    2- Import current app **store** and **createReducer** function:
+    const asyncReducers = {},
+      injectedMiddleWares = new Set();
 
-   ```
-    import store, { createReducer } from '@/js/store/store';
-   ```
-    
-    3- Import the `RemoteComponent`:
+    export const injectSlices = (asyncReducerSlices) => {
+      const newSlices = Object.entries(asyncReducerSlices).filter(
+        ([key, reducer]) => asyncReducers[key] !== reducer
+      );
+      if (!newSlices.length) return;
+
+      newSlices.forEach(([key, reducer]) => (asyncReducers[key] = reducer));
+      store.replaceReducer(createReducer(asyncReducers));
+    };
+
+    export const injectMiddleWares = (middleWares) => {
+      middleWares.forEach((middleWare) => {
+        if (injectedMiddleWares.has(middleWare)) return;
+
+        injectedMiddleWares.add(middleWare);
+        addMiddleware(middleWare);
+      });
+    };
+    ```
+
+    **_Notes:_**
+    - Remote apps inject their slices and middlewares every time they are mounted (e.g. when switching routes),
+      these functions inject each slice and middleware only once (otherwise middlewares would run multiple times for every action).
+    - Slices of all remote apps are kept in `asyncReducers`, so injecting the slices of a new remote app doesn't remove the slices of the other remote apps.
+
+- Open the component in which you want to use the remote module:
+
+    1- Import the current app **store**, **injectSlices** and **injectMiddleWares**:
+
+    ```
+    import store, { injectMiddleWares, injectSlices } from '@/js/store/store';
+    ```
+
+    2- Import the `RemoteComponent`:
 
     ```
     import RemoteComponent from '@/js/components/shared/remoteComponent/RemoteComponent';
     ```
-    
-    2- Create **injectMiddleWares** function in the component:
 
-    ```
-    const injectMiddleWares = (middleWares) => {
-      middleWares.forEach((el) => addMiddleware(el));
-    };
-    ```
-
-    3- Create **injectSlices** function in the component:
-
-    ```
-    const injectSlices = (asyncReducerSlices) => {
-      let asyncReducers = {};
-      Object.entries(asyncReducerSlices).forEach((el) => (asyncReducers[el[0]] = el[1]));
-
-      store.replaceReducer(createReducer(asyncReducers));
-    };
-    ```
-        
-    4- Pass `store`, `injectSlices` and `injectMiddleWares` to the `remote module`:
+    3- Pass `store`, `injectSlices` and `injectMiddleWares` to the `remote module`:
 
     ```
     <RemoteComponent
