@@ -15,7 +15,7 @@
 
 ## Prerequisites
 
-- nodeJS > 14.X.X or Docker
+- nodeJS ^22.18.0 or >=24.11.0, or Docker
 
 ## Installing / Getting Started
 
@@ -77,13 +77,6 @@
   new ModuleFederationPlugin({
     shared: ['react', 'react-dom'],
   }),
-  ```
-
-  6- Install **external-remotes-plugin** and add it below ***ModuleFederationPlugin*** in the plugins array:
-
-  ```
-  //used to make sure that remote modules are loaded before the main bundle
-  new ExternalTemplateRemotesPlugin(),
   ```
 
 - Import the ***remote module*** lazily in the required place, example:
