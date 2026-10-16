@@ -10,8 +10,14 @@ module.exports = {
   jsSubDirectory: 'js/',
   cssSubDirectory: 'css/',
   isCssModules: false,
-  remoteDevUrl: 'http://localhost:3001',
-  remoteProdUrl: 'http://localhost:8081',
+  /*remote apps hosted in the current app (key = remote app name defined in its ModuleFederationPlugin)
+  to add a new remote app, add it here then use it with <RemoteComponent remote="remote_name/ExposedModule" />*/
+  remotes: {
+    inner_app: {
+      devUrl: 'http://localhost:3001',
+      prodUrl: 'http://localhost:8081',
+    },
+  },
   metaInfo: {
     //max 60 (recommended)
     title: 'Container app',

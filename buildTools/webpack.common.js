@@ -3,14 +3,16 @@ const path = require('path'),
   HtmlWebpackPlugin = require('html-webpack-plugin'),
   MiniCssExtractPlugin = require('mini-css-extract-plugin'),
   EsLintPlugin = require('eslint-webpack-plugin'),
-  { ModuleFederationPlugin } = require('webpack').container,
+  {
+    DefinePlugin,
+    container: { ModuleFederationPlugin },
+  } = require('webpack'),
   //constants
   {
     devServer,
     jsSubDirectory,
     isCssModules,
-    remoteDevUrl,
-    remoteProdUrl,
+    remotes,
     metaInfo: { title, description, url, keywords },
   } = require('./constants'),
   PATHS = require('./paths'),
@@ -60,7 +62,7 @@ module.exports = (env, options) => {
           },
         },
         {
-          test: /\.(jpe?g|svg|png|gif|ico|eot|ttf|woff2?)(\?v=\d+\.\d+\.\d+)?$/i,
+          test: /\.(jpe?g|svg|png|gif|ico|ttf|woff2?)(\?v=\d+\.\d+\.\d+)?$/i,
           type: 'asset/resource',
         },
         {
@@ -112,16 +114,9 @@ module.exports = (env, options) => {
 
                   return {
                     plugins: [
-                      'postcss-flexbugs-fixes',
                       postcssPresetEnv({
                         stage: 0,
-                        //uncomment the following if you want to prefix grid properties
-                        // autoprefixer: { grid: true },
                       }),
-                      // Adds PostCSS Normalize as the reset css with default options,
-                      // so that it honors browserslist config in package.json
-                      // which in turn let us users customize the target behavior as per their needs.
-                      'postcss-normalize',
                     ],
                   };
                 },
@@ -150,9 +145,8 @@ module.exports = (env, options) => {
     plugins: [
       new ModuleFederationPlugin({
         name: 'app_container',
-        remotes: {
-          inner_app: `inner_app@${isDevelopment ? remoteDevUrl : remoteProdUrl}/remoteEntry.js`,
-        },
+        /*remote apps are not listed in "remotes" because webpack caches a failed remote until the page is refreshed,
+        instead they are loaded at runtime (src/js/constants/LoadRemote.js) so they can be retried*/
         //It defines how modules are shared in the share scope
         shared: {
           //eager: Allows Webpack to include the shared packages directly instead of fetching the library via an asynchronous request
@@ -166,6 +160,17 @@ module.exports = (env, options) => {
             requiredVersion: devDependencies['react-dom'],
           },
         },
+      }),
+      //remote apps urls (defined in buildTools/constants.js) used by src/js/constants/LoadRemote.js
+      new DefinePlugin({
+        MF_REMOTES: JSON.stringify(
+          Object.fromEntries(
+            Object.entries(remotes).map(([name, { devUrl, prodUrl }]) => [
+              name,
+              `${isDevelopment ? devUrl : prodUrl}/remoteEntry.js`,
+            ])
+          )
+        ),
       }),
       new EsLintPlugin({
         extensions: ['.js', '.jsx', '.json'],
