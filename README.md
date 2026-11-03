@@ -37,6 +37,19 @@
 ## Docker for production (_basic setup_) (modify it to your needs):
 - Update the **_production_** section of the **_Dockerfile_** to meet your needs
 - Run the following command to build your image => `docker-compose up web-prod`
+- The production image serves the app with **nginx** (**/docker/nginx.conf**):
+  - unknown routes fall back to `index.html` (react router handles them).
+  - `Access-Control-Allow-Origin: *` so the host apps can load the files of the current app (fonts, `remotes.json`, ...).
+  - hashed js/css files are cached forever, `index.html`, `remoteEntry.js` and `remotes.json` are revalidated on every request
+    (otherwise the host apps would keep loading an old version of the current app after a deploy).
+- The urls of the remote apps can be changed **without rebuilding the image** using `REMOTE_<APP_NAME>` environment variables,
+  they are written to `remotes.json` when the container starts (**/docker/40-remotes-json.sh**), e.g.:
+
+  ```
+  docker run -p 8080:80 -e REMOTE_INNER_APP=https://inner-app.example.com <image>
+  ```
+- Run the 3 apps together (the 3 repos must be cloned next to each other) => `docker compose -f docker-compose.micro-frontends.yml up --build`,
+  then open [http://localhost:8080](http://localhost:8080)
 
 ## How to import a _remote module_ and use it
 
@@ -47,6 +60,9 @@ Instead, remote apps are loaded at runtime, which allows retrying without refres
 - **/buildTools/constants.js** => `remotes` object contains the name and the urls of every remote app.
 - **/buildTools/webpack.common.js** => injects the remote apps urls into the code as `MF_REMOTES` (using ***DefinePlugin***).
 - **/src/js/constants/LoadRemote.js** => loads the `remoteEntry.js` of the remote app, shares the dependencies (react, react-dom, ...) with it and returns the requested module.
+- **remotes.json** (emitted next to `index.html` by **/buildTools/webpack.common.js**) => the urls of the remote apps loaded at runtime,
+  so they can be changed after the build without rebuilding the current app, e.g. `{ "inner_app": "https://inner-app.example.com" }`
+  (the docker image overwrites it from `REMOTE_<APP_NAME>` environment variables, `MF_REMOTES` is used if it can't be loaded).
 - **/src/js/components/shared/remoteComponent/RemoteComponent.jsx** => renders the remote module lazily inside an error boundary (with a loader and a **Try again** button).
 
 Usage:
@@ -60,6 +76,9 @@ import RemoteComponent from '@/js/components/shared/remoteComponent/RemoteCompon
 **_Notes:_**
 - `remote` format is `remote_app_name/ExposedModule`.
 - Any other prop passed to `RemoteComponent` is passed to the remote module, e.g. `<RemoteComponent remote="inner_app/App" store={store} />`.
+- Each remote app is loaded only once, even when it is requested by several components at the same time.
+- If the remote app has its own routes, add `hasInnerRoutes: true` to its page in **/src/js/routing/routingConstants/RoutesConfig.js**,
+  its route becomes `/carousel/*` so the remote app handles the urls under it (e.g. `/carousel/second`).
 - Each remote module is loaded only once, it is not loaded again when `RemoteComponent` is mounted again (e.g. when switching routes), so its state is kept.
 - If a remote module fails to load, the fallback UI with a **Try again** button is shown, it is loaded again when clicking **Try again** or when `RemoteComponent` is mounted again.
 
@@ -169,9 +188,19 @@ remotes: {
     const asyncReducers = {},
       injectedMiddleWares = new Set();
 
+    //a slice name can't be taken over by another reducer (of the current app or of another remote app)
+    const isSliceKeyTaken = (key, reducer) => {
+      const owner = reducerSlices[key] || asyncReducers[key];
+      if (owner && owner !== reducer) {
+        console.error(`Redux slice "${key}" already exists, the injected slice is ignored`);
+        return true;
+      }
+      return false;
+    };
+
     export const injectSlices = (asyncReducerSlices) => {
       const newSlices = Object.entries(asyncReducerSlices).filter(
-        ([key, reducer]) => asyncReducers[key] !== reducer
+        ([key, reducer]) => asyncReducers[key] !== reducer && !isSliceKeyTaken(key, reducer)
       );
       if (!newSlices.length) return;
 
@@ -193,6 +222,7 @@ remotes: {
     - Remote apps inject their slices and middlewares every time they are mounted (e.g. when switching routes),
       these functions inject each slice and middleware only once (otherwise middlewares would run multiple times for every action).
     - Slices of all remote apps are kept in `asyncReducers`, so injecting the slices of a new remote app doesn't remove the slices of the other remote apps.
+    - A slice whose name is already used (by the current app or another remote app) is ignored, so remote apps should prefix their slices names.
 
 - Open the component in which you want to use the remote module:
 

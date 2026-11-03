@@ -11,7 +11,12 @@ const App = () => (
     <AppHeader />
     <Routes>
       {routes.map((route, routeIndex) => (
-        <Route key={routeIndex} path={route.path} element={route.element} />
+        <Route
+          key={routeIndex}
+          //"/*" lets the remote apps of the page declare their own routes under its url
+          path={route.hasInnerRoutes ? `${route.path}/*` : route.path}
+          element={route.element}
+        />
       ))}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

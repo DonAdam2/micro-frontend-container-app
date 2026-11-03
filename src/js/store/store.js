@@ -36,10 +36,21 @@ export const createReducer = (asyncReducers) =>
 const asyncReducers = {},
   injectedMiddleWares = new Set();
 
+/*a slice key can't be taken over by another reducer, otherwise a remote app could silently replace a slice
+of the current app or of another remote app (prefix the slices of each remote app with its name to avoid that)*/
+const isSliceKeyTaken = (key, reducer) => {
+  const owner = reducerSlices[key] || asyncReducers[key];
+  if (owner && owner !== reducer) {
+    console.error(`Redux slice "${key}" already exists, the injected slice is ignored`);
+    return true;
+  }
+  return false;
+};
+
 //passed to the remote apps to inject their redux slices into the current store
 export const injectSlices = (asyncReducerSlices) => {
   const newSlices = Object.entries(asyncReducerSlices).filter(
-    ([key, reducer]) => asyncReducers[key] !== reducer
+    ([key, reducer]) => asyncReducers[key] !== reducer && !isSliceKeyTaken(key, reducer)
   );
   if (!newSlices.length) return;
 

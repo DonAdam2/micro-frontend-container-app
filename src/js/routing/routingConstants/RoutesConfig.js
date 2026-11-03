@@ -14,5 +14,7 @@ export const routes = [
     path: getCarouselPageUrl(),
     element: <CarouselPage />,
     label: 'Carousel',
+    //the remote apps of the page handle the urls under it (e.g. /carousel/second), see App.jsx
+    hasInnerRoutes: true,
   },
 ];

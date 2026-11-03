@@ -5,6 +5,8 @@ const path = require('path'),
   EsLintPlugin = require('eslint-webpack-plugin'),
   {
     DefinePlugin,
+    Compilation,
+    sources: { RawSource },
     container: { ModuleFederationPlugin },
   } = require('webpack'),
   //constants
@@ -16,11 +18,23 @@ const path = require('path'),
     metaInfo: { title, description, url, keywords },
   } = require('./constants'),
   PATHS = require('./paths'),
-  { devDependencies } = require(PATHS.packageJson);
+  { devDependencies, dependencies } = require(PATHS.packageJson),
+  /*shared dependencies must be configured the same way in the host and all the remote apps
+  requiredVersion is a range of the major version, so an app can be deployed with a newer minor/patch version
+  without breaking the other apps (an exact version would make strictVersion reject any mismatch)*/
+  majorVersionRange = (packageName) =>
+    `^${{ ...devDependencies, ...dependencies }[packageName].split('.')[0]}.0.0`;
 
 module.exports = (env, options) => {
   // the mode variable is passed in package.json scripts (development, production)
-  const isDevelopment = options.mode === 'development';
+  const isDevelopment = options.mode === 'development',
+    //origins of the remote apps (defined in buildTools/constants.js) for the current mode
+    remotesOrigins = Object.fromEntries(
+      Object.entries(remotes).map(([name, { devUrl, prodUrl }]) => [
+        name,
+        isDevelopment ? devUrl : prodUrl,
+      ])
+    );
 
   return {
     entry: `${PATHS.src}/index.jsx`,
@@ -150,14 +164,20 @@ module.exports = (env, options) => {
         //It defines how modules are shared in the share scope
         shared: {
           //eager: Allows Webpack to include the shared packages directly instead of fetching the library via an asynchronous request
+          //(only the host is eager, remote apps use the host's copy so they don't download their own)
           //singleton: Allows only a single version of the shared module in the shared scope
           //strictVersion: Allows Webpack to reject the shared module if its version is not valid
-          react: { eager: true, singleton: true, requiredVersion: devDependencies['react'] },
+          react: { eager: true, singleton: true, requiredVersion: majorVersionRange('react') },
           'react-dom': {
             eager: true,
             singleton: true,
             strictVersion: true,
-            requiredVersion: devDependencies['react-dom'],
+            requiredVersion: majorVersionRange('react-dom'),
+          },
+          'react-router-dom': {
+            eager: true,
+            singleton: true,
+            requiredVersion: majorVersionRange('react-router-dom'),
           },
         },
       }),
@@ -165,13 +185,30 @@ module.exports = (env, options) => {
       new DefinePlugin({
         MF_REMOTES: JSON.stringify(
           Object.fromEntries(
-            Object.entries(remotes).map(([name, { devUrl, prodUrl }]) => [
+            Object.entries(remotesOrigins).map(([name, origin]) => [
               name,
-              `${isDevelopment ? devUrl : prodUrl}/remoteEntry.js`,
+              `${origin}/remoteEntry.js`,
             ])
           )
         ),
       }),
+      /*emits remotes.json next to index.html, it's loaded at runtime by src/js/constants/LoadRemote.js
+      so the urls of the remote apps can be changed after the build (the docker image overwrites it from REMOTE_* variables)*/
+      {
+        apply: (compiler) => {
+          compiler.hooks.thisCompilation.tap('RemotesJsonPlugin', (compilation) => {
+            compilation.hooks.processAssets.tap(
+              { name: 'RemotesJsonPlugin', stage: Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL },
+              () => {
+                compilation.emitAsset(
+                  'remotes.json',
+                  new RawSource(JSON.stringify(remotesOrigins, null, 2))
+                );
+              }
+            );
+          });
+        },
+      },
       new EsLintPlugin({
         extensions: ['.js', '.jsx', '.json'],
         context: PATHS.src,
@@ -191,6 +228,9 @@ module.exports = (env, options) => {
         template: `${PATHS.public}/index.html`,
         filename: 'index.html',
         inject: 'body',
+        /*absolute urls for the files injected into index.html (output.publicPath is "auto", which makes them relative),
+        otherwise a nested route like /carousel/second would request /carousel/js/bundle.js*/
+        publicPath: '/',
         favicon: `${PATHS.public}/assets/images/favicon.png`,
         meta: {
           description,
