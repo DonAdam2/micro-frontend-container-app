@@ -41,7 +41,10 @@ of the current app or of another remote app (prefix the slices of each remote ap
 const isSliceKeyTaken = (key, reducer) => {
   const owner = reducerSlices[key] || asyncReducers[key];
   if (owner && owner !== reducer) {
-    console.error(`Redux slice "${key}" already exists, the injected slice is ignored`);
+    //every app prefixes its slices with its own name (see reducerSlices.js), so this only happens if a remote app doesn't
+    console.error(
+      `Redux slice "${key}" already exists, the injected slice is ignored (prefix the slices of each app with its name)`
+    );
     return true;
   }
   return false;

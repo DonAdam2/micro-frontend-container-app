@@ -222,7 +222,9 @@ remotes: {
     - Remote apps inject their slices and middlewares every time they are mounted (e.g. when switching routes),
       these functions inject each slice and middleware only once (otherwise middlewares would run multiple times for every action).
     - Slices of all remote apps are kept in `asyncReducers`, so injecting the slices of a new remote app doesn't remove the slices of the other remote apps.
-    - A slice whose name is already used (by the current app or another remote app) is ignored, so remote apps should prefix their slices names.
+    - Every app prefixes its slices names (store key and `createSlice` name) with a fixed prefix: `container` for the current app
+      (e.g. `containerApp`), `inner` for the inner app and `secondInner` for the second inner app, so slices and action types never collide.
+    - A slice whose name is already used (by the current app or another remote app) is ignored as a safety net.
 
 - Open the component in which you want to use the remote module:
 

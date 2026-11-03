@@ -5,7 +5,7 @@ const initialState = {
 };
 
 const appSlice = createSlice({
-  name: 'app',
+  name: 'containerApp',
   initialState,
   reducers: {
     updateTestString: (state) => {
